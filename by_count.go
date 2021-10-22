@@ -47,6 +47,7 @@ func (bc ByCount) Probability(v interface{}) float32 {
 
 // Probabilities returns a map of all values and their probability.
 func (bc ByCount) Probabilities() (probabilities map[interface{}]float32) {
+	probabilities = make(map[interface{}]float32)
 	for v := range bc.m {
 		probabilities[v] = bc.Probability(v)
 	}
