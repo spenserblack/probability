@@ -29,6 +29,15 @@ func (bc *ByCount) Insert(v interface{}) (count int) {
 	return bc.m[v]
 }
 
+// Keys returns all of the keys that have been counted.
+func (bc ByCount) Keys() []interface{} {
+	keys := make([]interface{}, 0, len(bc.m))
+	for key := range bc.m {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
 // Get gets the count of the provided value.
 func (bc ByCount) Get(v interface{}) int {
 	return bc.m[v]
