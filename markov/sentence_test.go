@@ -42,6 +42,12 @@ func TestFeed(t *testing.T) {
 			for _, countKey := range expectedCounts[expectedPrefix].Keys() {
 				expectedSuffixCount := expectedCounts[expectedPrefix].Get(countKey)
 				actualSuffixCount := chainCounts.Get(countKey)
+				t.Logf(
+					`Count for suffix %q for prefix %q = %d`,
+					countKey,
+					expectedPrefix,
+					actualSuffixCount,
+				)
 
 				if actualSuffixCount != expectedSuffixCount {
 					t.Errorf(
