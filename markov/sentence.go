@@ -21,6 +21,13 @@ type SentenceChain struct {
 	prefix          int
 }
 
+// SentenceGenerator is created from a SentenceChain and generates a series of
+// words (tokens).
+type SentenceGenerator struct {
+	chain  SentenceChain
+	prefix []string
+}
+
 // NewSentenceChain creates a new sentence chain. It will still need to be fed.
 // prefix is the number of tokens to be used as the prefix in the chain.
 func NewSentenceChain(prefix int) *SentenceChain {
@@ -70,4 +77,37 @@ func (c *SentenceChain) Insert(prefix string, suffix string) (created bool) {
 	}
 	byCount.Insert(suffix)
 	return
+}
+
+// MakeGenerator creates a generator from a chain for generating words (tokens)
+// to build out a sentence.
+func (c SentenceChain) MakeGenerator() *SentenceGenerator {
+	prefix := strings.Split(c.initialPrefixes.Select().(string), wordJoiner)
+	return &SentenceGenerator{c, prefix}
+}
+
+// Next returns the next token in the sequence. Stop determines if that is the
+// last token.
+func (g *SentenceGenerator) Next() (token string, stop bool) {
+	token = g.prefix[0]
+	nextWordSelector, ok := g.chain.chain[strings.Join(g.prefix, wordJoiner)]
+	if token == "" {
+		return token, true
+	}
+
+	var nextWord string
+	if !ok {
+		nextWord = ""
+	} else {
+		nextWord = nextWordSelector.Select().(string)
+	}
+
+	g.prefix = g.prefix[1:]
+	g.prefix = append(g.prefix, nextWord)
+	return
+}
+
+// HasNext returns true if another word can be returned.
+func (g SentenceGenerator) HasNext() bool {
+	return g.prefix[0] != ""
 }
