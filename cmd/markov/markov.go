@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 
 	"github.com/spenserblack/probability/markov"
@@ -35,8 +36,10 @@ var SentenceCmd = &cobra.Command{
 	Use:   "sentence",
 	Args:  cobra.MinimumNArgs(1),
 	Short: "Manage a sentence chain/generator",
-	Long: `Manage a sentence chain/generator, where each token is a word.
-		Each argument will be a "sentence" to feed the chain.`,
+	Long: heredoc.Doc(`
+		Manage a sentence chain/generator, where each token is a word.
+		Each argument will be a "sentence" to feed the chain.
+	`),
 	Example: `sentence "my sentence" "my other sentence"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		chain := markov.NewSentenceChain(PrefixFlag)
