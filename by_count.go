@@ -22,6 +22,13 @@ func (bc *ByCount) Seed(seed int64) {
 	bc.r.Seed(seed)
 }
 
+// SetRandom allows resetting the internal Rand to a different value. By default
+// each ByCount has its own individual Rand, but this can help share a random
+// generator among multiple instances.
+func (bc *ByCount) SetRandom(r *rand.Rand) {
+	bc.r = r
+}
+
 // Insert increments the count of the matching value, and returns the count.
 func (bc *ByCount) Insert(v interface{}) (count int) {
 	bc.total += 1

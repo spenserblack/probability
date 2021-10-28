@@ -2,6 +2,7 @@ package markov
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/spenserblack/probability"
@@ -19,7 +20,7 @@ type SentenceChain struct {
 	chain           sentenceCountMap
 	initialPrefixes *probability.ByCount
 	prefix          int
-	seed            int64
+	r               *rand.Rand
 }
 
 // SentenceGenerator is created from a SentenceChain and generates a series of
@@ -36,7 +37,7 @@ func NewSentenceChain(prefix int) *SentenceChain {
 		make(sentenceCountMap),
 		probability.NewByCount(),
 		prefix,
-		1,
+		rand.New(rand.NewSource(1)),
 	}
 }
 
@@ -74,10 +75,7 @@ func (c *SentenceChain) Seed(seed int64) {
 	// TODO Inefficient to have several random number generators with the same
 	// seed. There should be a way for each ByCount to share a random number
 	// generator.
-	c.seed = seed
-	for _, byCount := range c.chain {
-		byCount.Seed(seed)
-	}
+	c.r.Seed(seed)
 }
 
 // Insert inserts the prefix/suffix pair, and creates the prefix key if necessary.
@@ -88,7 +86,7 @@ func (c *SentenceChain) Insert(prefix string, suffix string) (created bool) {
 	byCount, exists := c.chain[prefix]
 	if !exists {
 		byCount = probability.NewByCount()
-		byCount.Seed(c.seed)
+		byCount.SetRandom(c.r)
 		c.chain[prefix] = byCount
 		created = true
 	}
