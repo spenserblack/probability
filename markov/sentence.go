@@ -19,6 +19,7 @@ type SentenceChain struct {
 	chain           sentenceCountMap
 	initialPrefixes *probability.ByCount
 	prefix          int
+	seed            int64
 }
 
 // SentenceGenerator is created from a SentenceChain and generates a series of
@@ -35,6 +36,7 @@ func NewSentenceChain(prefix int) *SentenceChain {
 		make(sentenceCountMap),
 		probability.NewByCount(),
 		prefix,
+		1,
 	}
 }
 
@@ -64,6 +66,20 @@ func (c *SentenceChain) Feed(tokens []string) error {
 	return nil
 }
 
+// Seed will seed the random number generator used by the SentenceChain. Each
+// SentenceChain chain has its own random number generator, but each
+// SentenceGenerator created from a SentenceChain will share the same random
+// number generator as the SentenceChain.
+func (c *SentenceChain) Seed(seed int64) {
+	// TODO Inefficient to have several random number generators with the same
+	// seed. There should be a way for each ByCount to share a random number
+	// generator.
+	c.seed = seed
+	for _, byCount := range c.chain {
+		byCount.Seed(seed)
+	}
+}
+
 // Insert inserts the prefix/suffix pair, and creates the prefix key if necessary.
 //
 // suffix should be an empty string if the prefix is intended to be able to end
@@ -72,6 +88,7 @@ func (c *SentenceChain) Insert(prefix string, suffix string) (created bool) {
 	byCount, exists := c.chain[prefix]
 	if !exists {
 		byCount = probability.NewByCount()
+		byCount.Seed(c.seed)
 		c.chain[prefix] = byCount
 		created = true
 	}

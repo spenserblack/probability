@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -39,6 +40,7 @@ var SentenceCmd = &cobra.Command{
 	Example: `sentence "my sentence" "my other sentence"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		chain := markov.NewSentenceChain(PrefixFlag)
+		chain.Seed(time.Now().UnixNano())
 		for _, sentence := range args {
 			words := strings.Fields(sentence)
 			if err := chain.Feed(words); err != nil {
