@@ -14,6 +14,9 @@ import (
 	"github.com/spenserblack/probability/markov"
 )
 
+// Version is the current version at build.
+var version string
+
 func main() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -65,6 +68,7 @@ var SentenceCmd = &cobra.Command{
 var PrefixFlag int
 
 func init() {
+	rootCmd.Version = version
 	rootCmd.AddCommand(SentenceCmd)
 	SentenceCmd.Flags().IntVar(
 		&PrefixFlag,
