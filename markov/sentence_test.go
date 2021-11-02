@@ -6,8 +6,8 @@ import (
 	"github.com/spenserblack/probability"
 )
 
-// TestFeed checks that the proper values are created in the chain.
-func TestFeed(t *testing.T) {
+// TestSentenceFeed checks that the proper values are created in the chain.
+func TestSentenceFeed(t *testing.T) {
 	chain := NewSentenceChain(2)
 
 	chain.Feed([]string{"a", "b", "a", "c", "a", "b", "a", "d"})
