@@ -72,9 +72,6 @@ func (c *SentenceChain) Feed(tokens []string) error {
 // SentenceGenerator created from a SentenceChain will share the same random
 // number generator as the SentenceChain.
 func (c *SentenceChain) Seed(seed int64) {
-	// TODO Inefficient to have several random number generators with the same
-	// seed. There should be a way for each ByCount to share a random number
-	// generator.
 	c.r.Seed(seed)
 }
 
