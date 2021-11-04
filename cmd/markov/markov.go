@@ -60,16 +60,51 @@ var SentenceCmd = &cobra.Command{
 	},
 }
 
+// WordCmd is used to manage a Markov generator for words.
+var WordCmd = &cobra.Command{
+	Use:   "word",
+	Args:  cobra.MinimumNArgs(1),
+	Short: "Manage a word chain/generator",
+	Long: heredoc.Doc(`
+		Manage a word chain/generator, where each token is a letter.
+		Each argument will be a "sentence" to feed the chain.
+
+		The definition of "word" is used loosely in this context. Any string of
+		characters is allowed, including spacing and punctuation. Because of this,
+		this subcommand can be used to not only generate a random word, but be
+		used as different, more random algorithm for generating a sentence.
+	`),
+	Example: `word "foo" "bar"`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		chain := markov.NewWordChain(PrefixFlag)
+		chain.Seed(time.Now().UnixNano())
+		for _, word := range args {
+			if err := chain.Feed([]rune(word)); err != nil {
+				return err
+			}
+		}
+		generator := chain.MakeGenerator()
+		for generator.HasNext() {
+			letter, _ := generator.Next()
+			fmt.Printf("%c", letter)
+		}
+		fmt.Println()
+		return nil
+	},
+}
+
 // PrefixFlag is the number of tokens to use as the prefix when generating
 // tokens.
 var PrefixFlag int
 
 func init() {
-	rootCmd.AddCommand(SentenceCmd)
-	SentenceCmd.Flags().IntVar(
-		&PrefixFlag,
-		"prefix",
-		1,
-		"The number of tokens to use as a prefix",
-	)
+	for _, subcommand := range []*cobra.Command{SentenceCmd, WordCmd} {
+		rootCmd.AddCommand(subcommand)
+		subcommand.Flags().IntVar(
+			&PrefixFlag,
+			"prefix",
+			1,
+			"The number of tokens to use as a prefix",
+		)
+	}
 }
